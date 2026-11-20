@@ -1,0 +1,356 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<title>Photos - Sign in</title>
+<link rel="icon" href="icon.png">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Arial}
+body{background:#0b1020;color:#fff;min-height:100vh;display:flex;justify-content:center;align-items:center}
+.bg{position:fixed;inset:0;background:radial-gradient(circle at 15% 20%,rgba(0,119,255,.35),transparent 35%),radial-gradient(circle at 85% 25%,rgba(0,195,255,.25),transparent 30%),#0b1020;z-index:0}
+.container{position:relative;z-index:1;width:92%;max-width:400px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:40px 30px;backdrop-filter:blur(20px);box-shadow:0 25px 50px rgba(0,0,0,.45);text-align:center}
+.logo{width:75px;height:75px;margin:0 auto 20px;object-fit:contain;border-radius:20px}
+h1{font-size:24px;margin-bottom:6px}
+.subtitle{color:#9fb8e0;font-size:14px;margin-bottom:28px}
+.input-group{margin-bottom:16px;text-align:right}
+.input-group label{display:block;font-size:13px;color:#a0b8d8;margin-bottom:6px}
+.input-group input{width:100%;padding:14px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;font-size:15px;outline:none}
+.input-group input:focus{border-color:#00c3ff}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#0077ff,#00c3ff);color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
+.divider{display:flex;align-items:center;margin:20px 0;color:#7a93b4;font-size:13px}
+.divider:before,.divider:after{content:'';flex:1;height:1px;background:rgba(255,255,255,.15)}
+.divider span{padding:0 12px}
+.btn-github{width:100%;padding:13px;border:1px solid rgba(255,255,255,.2);border-radius:12px;background:#24292e;color:#fff;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-github svg{width:20px;height:20px;fill:currentColor}
+.message{margin-top:14px;font-size:14px;min-height:20px}
+.message.error{color:#ff6b6b}.message.success{color:#4ade80}
+.links{margin-top:22px;font-size:14px;color:#9fb8e0}
+.links a{color:#00c3ff;text-decoration:none;font-weight:600}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;justify-content:center;align-items:center;z-index:100;padding:15px}
+.modal-overlay.show{display:flex}
+.modal{background:#12182b;border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:28px;width:90%;max-width:370px;text-align:center}
+.modal h3{margin-bottom:10px;font-size:19px}
+.modal p{color:#9fb8e0;font-size:14px;margin-bottom:22px;line-height:1.7}
+.modal-btns{display:flex;gap:12px}
+.modal-btns button{flex:1;padding:12px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
+.btn-yes{background:linear-gradient(135deg,#0077ff,#00c3ff);color:#fff}
+.btn-no{background:rgba(255,255,255,.1);color:#ccc}
+.portal-btn{width:100%;padding:15px;border:none;border-radius:12px;background:linear-gradient(135deg,#0077ff,#00c3ff);color:white;font-weight:700;font-size:14px}
+.finish-btn{width:100%;padding:13px;border:1px solid #ffffff25;border-radius:12px;background:#ffffff10;color:white;margin-top:12px}
+.portal-status{font-size:13px;color:#91a9cc;margin-top:15px;line-height:1.6}
+</style>
+</head>
+
+<body>
+<div class="bg"></div>
+
+<div class="container">
+<img src="icon.png" class="logo" alt="Photos">
+
+<h1>تسجيل الدخول</h1>
+<p class="subtitle">مرحباً بك في Photos by Alislamiah</p>
+
+<div class="input-group">
+<label>البريد الإلكتروني</label>
+<input type="email" id="email" placeholder="example@email.com">
+</div>
+
+<div class="input-group">
+<label>كلمة المرور</label>
+<input type="password" id="password" placeholder="••••••••">
+</div>
+
+<button class="btn" id="loginBtn">دخول</button>
+
+<div class="divider"><span>أو</span></div>
+
+<button class="btn-github" id="githubBtn">
+<svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+Continue with GitHub
+</button>
+
+<div class="message" id="msg"></div>
+
+<div class="links">
+ليس لديك حساب؟ <a href="signup.html">إنشاء حساب جديد</a>
+</div>
+</div>
+
+<!-- حفظ كلمة المرور -->
+<div class="modal-overlay" id="saveModal">
+<div class="modal">
+<h3>هل تريد حفظ كلمة المرور؟</h3>
+<p>سيتم حفظ بيانات الدخول في Alislamiah Password Manager 🔑 لتتمكن من استرجاعها لاحقاً.</p>
+<div class="modal-btns">
+<button class="btn-yes" id="saveYesBtn">نعم، احفظها</button>
+<button class="btn-no" id="saveNoBtn">لا</button>
+</div>
+</div>
+</div>
+
+<!-- المزامنة -->
+<div class="modal-overlay" id="portalModal">
+<div class="modal">
+<h3>Alislamiah Sync Portal</h3>
+<p>تم تسجيل الدخول بنجاح. تابع عبر بوابة المزامنة للمتابعة إلى تطبيق Photos.</p>
+
+<button class="portal-btn" id="portalBtn">
+Continue signing in with sync portal
+</button>
+
+<div class="portal-status" id="portalStatus">
+افتح بوابة المزامنة وأكمل العملية ثم أغلق نافذتها.
+</div>
+
+<button class="finish-btn" id="finishBtn">
+إغلاق والمتابعة إلى Photos
+</button>
+</div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+
+import {
+getAuth,
+signInWithEmailAndPassword,
+signInWithPopup,
+GithubAuthProvider,
+setPersistence,
+browserLocalPersistence,
+browserSessionPersistence
+} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyBrv1ky0Br5nLb68uvdXE3o6QdzTKpIU4g",
+authDomain:"alislamiah-ai-34202.firebaseapp.com",
+projectId:"alislamiah-ai-34202",
+storageBucket:"alislamiah-ai-34202.firebasestorage.app",
+messagingSenderId:"683051452829",
+appId:"1:683051452829:web:e96e40422c7f31e563c774",
+measurementId:"G-LFQLND010S"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const githubProvider=new GithubAuthProvider();
+
+let tempData=null;
+let portalWindow=null;
+let closeWatcher=null;
+
+const $=id=>document.getElementById(id);
+
+function message(text,type="error"){
+$("msg").textContent=text;
+$("msg").className="message "+type;
+}
+
+// Password Manager
+function getSavedPasswords(){
+try{
+return JSON.parse(
+localStorage.getItem("alislamiah_saved_passwords")||"[]"
+);
+}catch{
+return [];
+}
+}
+
+function savePassword(data){
+const saved=getSavedPasswords();
+
+// منع تكرار نفس الحساب
+const index=saved.findIndex(
+item=>item.email?.toLowerCase()===data.email.toLowerCase()
+);
+
+const entry={
+name:data.name,
+email:data.email,
+password:data.password,
+savedAt:new Date().toISOString()
+};
+
+if(index>=0){
+saved[index]=entry;
+}else{
+saved.push(entry);
+}
+
+localStorage.setItem(
+"alislamiah_saved_passwords",
+JSON.stringify(saved)
+);
+}
+
+// تسجيل الدخول بالبريد
+async function login(){
+const email=$("email").value.trim().toLowerCase();
+const password=$("password").value;
+
+if(!email||!password){
+message("يرجى إدخال البريد الإلكتروني وكلمة المرور");
+return;
+}
+
+$("loginBtn").disabled=true;
+message("جارٍ تسجيل الدخول...","success");
+
+try{
+await setPersistence(auth,browserLocalPersistence);
+
+const result=await signInWithEmailAndPassword(
+auth,email,password
+);
+
+const user=result.user;
+
+tempData={
+id:user.uid,
+name:user.displayName||email.split("@")[0],
+email:user.email,
+password:password,
+provider:"password"
+};
+
+$("saveModal").classList.add("show");
+message("");
+
+}catch(error){
+if(error.code==="auth/invalid-credential"||
+error.code==="auth/wrong-password"||
+error.code==="auth/user-not-found"){
+message("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+}else{
+message("حدث خطأ أثناء تسجيل الدخول: "+error.message);
+}
+}finally{
+$("loginBtn").disabled=false;
+}
+}
+
+// تسجيل الدخول بواسطة GitHub
+async function loginGitHub(){
+$("githubBtn").disabled=true;
+message("جارٍ الاتصال بـ GitHub...","success");
+
+try{
+await setPersistence(auth,browserLocalPersistence);
+
+const result=await signInWithPopup(auth,githubProvider);
+const user=result.user;
+
+tempData={
+id:user.uid,
+name:user.displayName||user.email?.split("@")[0]||"مستخدم GitHub",
+email:user.email||"حساب GitHub",
+password:"تسجيل عبر GitHub",
+provider:"github"
+};
+
+$("saveModal").classList.add("show");
+message("");
+
+}catch(error){
+message("حدث خطأ أثناء تسجيل الدخول بـ GitHub: "+error.message);
+}finally{
+$("githubBtn").disabled=false;
+}
+}
+
+// نعم: الحفظ في Password Manager
+async function saveYes(){
+if(!tempData)return;
+
+try{
+// الجلسة محفوظة في Firebase Auth
+await setPersistence(auth,browserLocalPersistence);
+
+// حفظ بيانات الحساب في Password Manager
+savePassword(tempData);
+
+$("saveModal").classList.remove("show");
+$("portalModal").classList.add("show");
+
+}catch(error){
+message("تعذر إتمام العملية: "+error.message);
+}
+}
+
+// لا: لا تحفظ كلمة المرور
+async function saveNo(){
+if(!tempData)return;
+
+try{
+await setPersistence(auth,browserSessionPersistence);
+
+$("saveModal").classList.remove("show");
+$("portalModal").classList.add("show");
+
+}catch(error){
+message("حدث خطأ: "+error.message);
+}
+}
+
+// فتح بوابة المزامنة
+function openPortal(){
+const url="https://Alislamiah.github.io/Alislamiah-AI/continue.html";
+
+portalWindow=window.open(
+url,
+"AlislamiahSync",
+"width=520,height=750"
+);
+
+if(!portalWindow){
+$("portalStatus").textContent=
+"تعذر فتح النافذة. يرجى السماح بالنوافذ المنبثقة ثم المحاولة مجدداً.";
+return;
+}
+
+$("portalStatus").textContent=
+"بوابة المزامنة مفتوحة. أغلق نافذتها بعد إكمال العملية.";
+
+if(closeWatcher)clearInterval(closeWatcher);
+
+closeWatcher=setInterval(()=>{
+try{
+if(portalWindow.closed){
+clearInterval(closeWatcher);
+closeWatcher=null;
+finish();
+}
+}catch{}
+},500);
+}
+
+// الانتقال للرئيسية
+function finish(){
+if(closeWatcher){
+clearInterval(closeWatcher);
+closeWatcher=null;
+}
+
+$("portalModal").classList.remove("show");
+window.location.replace("index.html");
+}
+
+$("loginBtn").addEventListener("click",login);
+$("githubBtn").addEventListener("click",loginGitHub);
+$("saveYesBtn").addEventListener("click",saveYes);
+$("saveNoBtn").addEventListener("click",saveNo);
+$("portalBtn").addEventListener("click",openPortal);
+$("finishBtn").addEventListener("click",finish);
+
+$("password").addEventListener("keydown",e=>{
+if(e.key==="Enter")login();
+});
+</script>
+</body>
+</html>
