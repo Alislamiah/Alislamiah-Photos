@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -14,19 +13,29 @@ body{background:#07111f;color:#f5f8ff;min-height:100vh;overflow-x:hidden}
 button,input{font:inherit}
 button{cursor:pointer}
 
-/* SPLASH SCREEN */
+/* SPLASH SCREEN - باستخدام intro.png */
 #splash{
 position:fixed;inset:0;background:#07111f;z-index:9999;
 display:flex;align-items:center;justify-content:center;
+overflow:hidden;
 }
-.splash-icon{width:115px;height:115px;object-fit:contain;border-radius:25px}
-.splash-brand{
-position:absolute;bottom:45px;display:flex;
-flex-direction:column;align-items:center;gap:9px;
+.splash-intro{
+width:100%;
+height:100%;
+object-fit:cover;
+display:block;
 }
-.splash-brand img{width:57px;height:57px;object-fit:contain}
-.splash-brand span{font-size:19px;font-weight:700;letter-spacing:1px}
-.loader{position:absolute;bottom:155px;width:28px;height:28px;border:3px solid #ffffff20;border-top-color:#00baff;border-radius:50%;animation:spin .8s linear infinite}
+.loader{
+position:absolute;
+bottom:60px;
+width:32px;
+height:32px;
+border:3px solid #ffffff30;
+border-top-color:#00baff;
+border-radius:50%;
+animation:spin .8s linear infinite;
+z-index:10;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* MAIN APPLICATION */
@@ -239,14 +248,10 @@ border-radius:12px;margin-bottom:10px;font-size:14px;
 
 <body>
 
-<!-- SPLASH -->
+<!-- SPLASH - باستخدام intro.png -->
 <div id="splash">
-<img src="icon.png" class="splash-icon" alt="Photos">
+<img src="intro.png" class="splash-intro" alt="Photos">
 <div class="loader"></div>
-<div class="splash-brand">
-<img src="Alislamiah.png" alt="Alislamiah">
-<span>Alislamiah</span>
-</div>
 </div>
 
 <!-- APP -->
@@ -726,112 +731,114 @@ function renderHome(){
 const query=$("searchInput").value.trim();
 const items=filteredMedia(currentFilter,query);
 
-$("photoCount").textContent=media.filter(x=>x.type==="image").length;
-$("videoCount").textContent=media.filter(x=>x.type==="video").length;
-$("favoriteCount").textContent=getFavorites().length;
 $("mediaCountLabel").textContent=items.length+" عنصر";
-$("settingsCount").textContent=media.length+" عنصر";
+$("sectionTitle").textContent=query?"نتائج البحث":"أحدث الوسائط";
 
 renderGrid($("mediaGrid"),items);
-}
 
-function renderFavorites(){
-const i
-tems=filteredMedia("favorite");
-renderGrid($("favoritesGrid"),items);
+// تحديث الإحصائيات
+const photos=media.filter(x=>x.type==="image").length;
+const videos=media.filter(x=>x.type==="video").length;
+const favs=getFavorites().length;
+
+$("photoCount").textContent=photos;
+$("videoCount").textContent=videos;
+$("favoriteCount").textContent=favs;
+$("settingsCount").textContent=media.length+" عنصر";
 }
 
 function renderAlbums(){
-
-const groups={};
-
-media.forEach(item=>{
-const date=new Date(item.date);
-const key=date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0");
-
-if(!groups[key])groups[key]=[];
-groups[key].push(item);
-});
-
 const grid=$("albumGrid");
 grid.innerHTML="";
 
-const entries=Object.entries(groups).sort((a,b)=>b[0].localeCompare(a[0]));
-
-if(!entries.length){
+if(!media.length){
 grid.innerHTML=`
+<div class="empty" style="grid-column:1/-1">
 <div class="empty" style="grid-column:1/-1">
 <div class="empty-icon">▦</div>
 <h3>لا توجد ألبومات بعد</h3>
-<p>ستظهر ألبوماتك تلقائياً حسب تاريخ الصور والفيديوهات.</p>
+<p>أضف بعض الصور لتبدأ في إنشاء ألبوماتك.</p>
 </div>`;
 return;
 }
 
-entries.forEach(([key,items])=>{
+// ألبوم بسيط حسب النوع
+const types=[
+{id:"all",name:"كل الوسائط",items:media},
+{id:"image",name:"الصور",items:media.filter(x=>x.type==="image")},
+{id:"video",name:"الفيديوهات",items:media.filter(x=>x.type==="video")},
+{id:"favorite",name:"المفضلة",items:media.filter(x=>isFavorite(x.id))}
+];
+
+types.forEach(type=>{
+if(!type.items.length&&type.id!=="all")return;
 
 const card=document.createElement("div");
 card.className="album-card";
+card.onclick=()=>{
+currentFilter=type.id;
+document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+const btn=document.querySelector(`.tabs button[data-filter="${type.id}"]`);
+if(btn)btn.classList.add("active");
+goPage("homePage");
+};
 
 const cover=document.createElement("div");
 cover.className="album-cover";
 
-items.slice(0,4).forEach(item=>{
+const samples=type.items.slice(0,4);
+samples.forEach(item=>{
+const url=getURL(item);
+if(item.type==="image"){
 const img=document.createElement("img");
-img.src=getURL(item);
+img.src=url;
 cover.appendChild(img);
+}else{
+const img=document.createElement("img");
+img.src=url;
+img.style.objectFit="cover";
+cover.appendChild(img);
+}
 });
 
-card.appendChild(cover);
+while(cover.children.length<4){
+const empty=document.createElement("div");
+empty.style.background="#1a2d45";
+cover.appendChild(empty);
+}
 
 const info=document.createElement("div");
 info.className="album-info";
+info.innerHTML=`<strong>\( {type.name}</strong><small> \){type.items.length} عنصر</small>`;
 
-const title=document.createElement("strong");
-title.textContent=new Date(key+"-01").toLocaleDateString("ar",{year:"numeric",month:"long"});
-
-const count=document.createElement("small");
-count.textContent=items.length+" عنصر";
-
-info.append(title,count);
+card.appendChild(cover);
 card.appendChild(info);
-
-card.onclick=()=>{
-clearOldUrls();
-goPage("homePage");
-currentFilter="all";
-document.querySelectorAll(".tabs button").forEach(b=>{
-b.classList.toggle("active",b.dataset.filter==="all");
-});
-renderHome();
-};
-
 grid.appendChild(card);
 });
+}
+
+function renderFavorites(){
+const items=media.filter(x=>isFavorite(x.id));
+renderGrid($("favoritesGrid"),items);
 }
 
 function renderAll(){
 clearOldUrls();
 renderHome();
-renderFavorites();
 renderAlbums();
+renderFavorites();
 }
 
 /* NAVIGATION */
 
 function goPage(page){
-
 currentPage=page;
+document.querySelectorAll("main > section").forEach(s=>s.style.display="none");
+$(page).style.display="block";
 
-["homePage","albumsPage","favoritesPage","settingsPage"].forEach(id=>{
-$(id).style.display=id===page?"block":"none";
+document.querySelectorAll(".nav-btn").forEach(b=>{
+b.classList.toggle("active",b.dataset.page===page);
 });
-
-document.querySelectorAll(".nav-btn").forEach(btn=>{
-btn.classList.toggle("active",btn.dataset.page===page);
-});
-
-clearOldUrls();
 
 if(page==="homePage")renderHome();
 if(page==="albumsPage")renderAlbums();
@@ -842,130 +849,90 @@ document.querySelectorAll(".nav-btn").forEach(btn=>{
 btn.addEventListener("click",()=>goPage(btn.dataset.page));
 });
 
-/* FILTERS */
+/* TABS */
 
 document.querySelectorAll(".tabs button").forEach(btn=>{
-
 btn.addEventListener("click",()=>{
-
 document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
-
 btn.classList.add("active");
 currentFilter=btn.dataset.filter;
-
-clearOldUrls();
 renderHome();
 });
 });
 
 /* SEARCH */
 
-$("searchInput").addEventListener("input",()=>{
-clearOldUrls();
-renderHome();
-});
-
-window.openSearch=()=>{
-goPage("homePage");
+function openSearch(){
 $("searchInput").focus();
-};
-
-$("searchInput").addEventListener("keydown",e=>{
-if(e.key==="Escape"){
-$("searchInput").value="";
-clearOldUrls();
-renderHome();
 }
-});
+
+$("searchInput").addEventListener("input",()=>renderHome());
 
 /* VIEWER */
 
 function openViewer(id){
-
 const item=media.find(x=>x.id===id);
 if(!item)return;
 
 currentItem=item;
-$("viewerContent").innerHTML="";
-clearOldUrls();
+$("viewerTitle").textContent=item.name;
+\( ("viewerDetails").textContent=` \){item.type==="image"?"صورة":"فيديو"} • ${(item.size/1024/1024).toFixed(1)} MB`;
+
+const content=$("viewerContent");
+content.innerHTML="";
 
 const url=getURL(item);
 
 if(item.type==="image"){
 const img=document.createElement("img");
 img.src=url;
-img.alt=item.name;
-$("viewerContent").appendChild(img);
+content.appendChild(img);
 }else{
 const video=document.createElement("video");
 video.src=url;
 video.controls=true;
 video.autoplay=true;
-video.playsInline=true;
-$("viewerContent").appendChild(video);
+content.appendChild(video);
 }
 
-$("viewerTitle").textContent=item.name;
-$("viewerDetails").textContent=
-item.type==="image"?"صورة":"فيديو";
-
-$("viewerFavorite").textContent=isFavorite(id)?"♥":"♡";
+$("viewerFavorite").textContent=isFavorite(item.id)?"♥":"♡";
 $("viewer").style.display="flex";
 }
 
-window.closeViewer=()=>{
+function closeViewer(){
 $("viewer").style.display="none";
 $("viewerContent").innerHTML="";
 currentItem=null;
-clearOldUrls();
-};
+}
 
-window.toggleCurrentFavorite=()=>{
+function toggleCurrentFavorite(){
 if(!currentItem)return;
+toggleFavorite(currentItem.id);
+$("viewerFavorite").textContent=isFavorite(currentItem.id)?"♥":"♡";
+}
 
-const id=currentItem.id;
-toggleFavorite(id);
+/* MENU */
 
-$("viewerFavorite").textContent=isFavorite(id)?"♥":"♡";
-};
-
-/* SIDE MENU */
-
-window.toggleMenu=()=>{
+function toggleMenu(){
 const menu=$("menu");
 menu.style.display=menu.style.display==="block"?"none":"block";
-};
+}
 
 /* LOGOUT */
 
-window.logout=async()=>{
-
-if(!confirm("هل تريد تسجيل الخروج من Photos؟"))return;
-
-try{
-await signOut(auth);
-localStorage.removeItem("alislamiah_current_user");
+function logout(){
+signOut(auth).then(()=>{
 window.location.replace("signin.html");
-}catch(error){
-alert("تعذر تسجيل الخروج: "+error.message);
-}
-};
-
-/* KEYBOARD */
-
-document.addEventListener("keydown",e=>{
-if(e.key==="Escape"){
-if($("viewer").style.display==="flex"){
-closeViewer();
-}else if($("menu").style.display==="block"){
-toggleMenu();
-}
-}
 });
+}
 
-/* CLEANUP */
-
-window.addEventListener("pagehide",clearOldUrls);
+// جعل الدوال متاحة عالمياً
+window.openSearch=openSearch;
+window.toggleMenu=toggleMenu;
+window.goPage=goPage;
+window.closeViewer=closeViewer;
+window.toggleCurrentFavorite=toggleCurrentFavorite;
+window.logout=logout;
 
 </script>
 </body>
